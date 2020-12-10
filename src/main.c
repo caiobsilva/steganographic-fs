@@ -1,13 +1,14 @@
 #define FUSE_USE_VERSION 35
 
-#include <fuse.h>
+#include <pthread.h>
 #include <string.h>
 #include <errno.h>
+#include <fuse.h>
 #include "encode.h"
 
 static const char *filepath = "/file";
 static const char *filename = "file";
-static const char *filecontent = "I'm the content of the only file available there\n";
+static const char *filecontent = "hopefully you're not seeing this";
 
 static int getattr_callback(const char *path, struct stat *stbuf) {
   memset(stbuf, 0, sizeof(struct stat));
@@ -28,8 +29,13 @@ static int getattr_callback(const char *path, struct stat *stbuf) {
   return -ENOENT;
 }
 
-static int readdir_callback(const char *path, void *buf, fuse_fill_dir_t filler,
-    off_t offset, struct fuse_file_info *fi) {
+static int readdir_callback(
+  const char *path,
+  void *buf,
+  fuse_fill_dir_t filler,
+  off_t offset,
+  struct fuse_file_info *fi
+) {
   (void) offset;
   (void) fi;
 
@@ -44,9 +50,13 @@ static int open_callback(const char *path, struct fuse_file_info *fi) {
   return 0;
 }
 
-static int read_callback(const char *path, char *buf, size_t size, off_t offset,
-    struct fuse_file_info *fi) {
-
+static int read_callback(
+  const char *path,
+  char *buf,
+  size_t size,
+  off_t offset,
+  struct fuse_file_info *fi
+) {
   if (strcmp(path, filepath) == 0) {
     size_t len = strlen(filecontent);
     if (offset >= len) {
@@ -72,10 +82,9 @@ static struct fuse_operations fuse_example_operations = {
   .readdir = readdir_callback,
 };
 
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   fuse_main(argc, argv, &fuse_example_operations, NULL);
+
 
   return 0;
 }
