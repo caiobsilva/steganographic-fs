@@ -83,8 +83,18 @@ static struct fuse_operations fuse_example_operations = {
 };
 
 int main(int argc, char *argv[]) {
+  FILE *file_base, *file_in, *file_out;
+
   fuse_main(argc, argv, &fuse_example_operations, NULL);
 
+  file_base = fopen("res/kirby256.bmp", "rb+");
+  if (file_base == NULL) { return -1; }
+  file_in = fopen("res/mock.txt", "r");
+  if (file_in == NULL) { return -1; }
+  file_out = fopen("out.bmp", "wb+");
+  if (file_out == NULL) { return -1; }
+
+  encode(file_base, file_in, file_out);
 
   return 0;
 }
